@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+DESTDIR=../debian/$(shell sed -n 's/^Package: \(.*\)$$/\1/p' debian/control)
+VRUIVER=$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)
+VRUI_MAKEDIR=/usr/share/Vrui-$(VRUIVER)/make
+SRCDIR=ExamplePrograms
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@ --sourcedirectory=$(SRCDIR) --parallel
+
+override_dh_auto_build:
+	$(MAKE) -C $(SRCDIR) VRUI_MAKEDIR=$(VRUI_MAKEDIR) INSTALLDIR=/usr
+
+override_dh_auto_install:
+	$(MAKE) -C $(SRCDIR) VRUI_MAKEDIR=$(VRUI_MAKEDIR) INSTALLDIR=$(DESTDIR)/usr install
+	chmod -R a-x+X $(SRCDIR)/$(DESTDIR)/usr/share

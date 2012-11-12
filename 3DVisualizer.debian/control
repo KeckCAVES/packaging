@@ -1,0 +1,18 @@
+Source: 3dvisualizer
+Priority: extra
+Maintainer: MAINTAINER
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
+Standards-Version: 3.9.3
+Section: science
+Homepage: http://keckcaves.org/software/3dvisualizer
+
+Package: SOURCE
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Visualization and analysis of 3D multivariate gridded data
+ 3D Visualizer is a highly interactive application for visualization and
+ analysis of 3D multivariate gridded data, such as produced by finite element
+ method (FEM) simulations, confocal microscopy, serial sectioning,
+ computerized axial tomography (CAT) scans, or magnetic resonance imaging
+ (MRI) scans.

@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+SRCNAME=$(shell dpkg-parsechangelog | sed -n 's/^Source: \(.*\)$$/\1/p')
+VER=$(patsubst libvrui%,%,$(SRCNAME))
+VRUINAME=Vrui-$(VER)
+PKGCONFIGFILE=Share/$(VRUINAME).pc
+SHAREETC=usr/share/$(VRUINAME)/etc
+DESTDIR=debian/$(SRCNAME)
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build:
+	$(MAKE) SYSTEMINSTALL=1 PKGCONFIGFILE=$(PKGCONFIGFILE) LIBEXT=lib INSTALLDIR=/
+
+override_dh_auto_install:
+	# base package
+	$(MAKE) SYSTEMINSTALL=1 PKGCONFIGFILE=$(PKGCONFIGFILE) LIBEXT=lib INSTALLDIR=$(DESTDIR) install
+	install -d $(DESTDIR)/$(SHAREETC)
+	mv $(DESTDIR)/etc/$(VRUINAME)/* $(DESTDIR)/$(SHAREETC)/
+	mv $(DESTDIR)/$(SHAREETC)/Vrui.cfg $(DESTDIR)/etc/$(VRUINAME)/
+	# dev package
+	install -d $(DESTDIR)-dev/usr/lib
+	install -d $(DESTDIR)-dev/usr/share/$(VRUINAME)
+	mv $(DESTDIR)/usr/include $(DESTDIR)-dev/usr/
+	mv $(DESTDIR)/usr/lib/pkgconfig $(DESTDIR)-dev/usr/lib/
+	mv $(DESTDIR)/usr/share/$(VRUINAME)/make $(DESTDIR)-dev/usr/share/$(VRUINAME)/
+	# doc package
+	install -d $(DESTDIR)-doc/usr/share
+	mv $(DESTDIR)/usr/share/doc $(DESTDIR)-doc/usr/share/
+	# utils package
+	install -d debian/vrui-utils/usr
+	mv $(DESTDIR)/usr/bin debian/vrui-utils/usr/
+	install -d debian/vrui-utils/etc/$(VRUINAME)
+	mv $(DESTDIR)/$(SHAREETC)/VRDevices.cfg debian/vrui-utils/etc/$(VRUINAME)/
+
+override_dh_shlibdeps:
+	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:lib" dh_shlibdeps
+
+override_dh_gencontrol:
+	dh_gencontrol -p$(SRCNAME)
+	dh_gencontrol -p$(SRCNAME)-dev
+	dh_gencontrol -p$(SRCNAME)-doc
+	dh_gencontrol -pvrui-utils -- -v$(VER)-$(shell dpkg-parsechangelog | sed -n 's/^Version: //p')

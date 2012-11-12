@@ -1,0 +1,84 @@
+#!/bin/bash -e
+
+# The Ubuntu series to build for.
+# "local" will build binary packages locally.
+#SERIES_ALL=(quantal)
+#SERIES_ALL=(local)
+SERIES_ALL=(oneiric precise quantal raring)
+
+# The package maintainer
+MAINTAINER="Braden Pellett <bpellett@ucdavis.edu>"
+
+# Full path to the template debian directories
+CONFDIR=$(readlink -f $(dirname "$0"))
+
+# Number of jobs for a parallel build
+JOBS=5
+
+# Keep intermediate build directories
+KEEP=1
+
+###############################################################################
+
+inc_orig=${INC_ORIG:-1}
+TARBALLPATH="$1"
+SUBPKG="$2"
+
+VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER TARBALL VERSION RELEASE SRCPKGVER SERIES VRUIVER HOMEPAGE COPYRIGHT)
+
+if ! [[ -f $TARBALLPATH ]]; then
+  echo "Can't find tarball $TARBALL"
+  exit 1
+fi
+
+DATE=$(date -R)
+YEAR=$(date +%Y)
+TARBALL=$(basename "$TARBALLPATH")
+TARBALLDIR=$(dirname "$TARBALLPATH")
+BASENAME=$(echo $TARBALL | sed -n 's/\.[^0-9]*$//p')
+n=$(echo $BASENAME | sed -n 's/-/\n/gp')
+UPSTREAMNAME=$(echo "$n" | sed -n '1p')
+NAME="$UPSTREAMNAME$SUBPKG"
+VERSION=$(echo "$n" | sed -n '2p')
+RELEASE=$(echo "$n" | sed -n '3p'); RELEASE=${RELEASE:-0}
+SRCPKGVER=$VERSION
+
+debiandir="$CONFDIR/$NAME.debian"
+[[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $NAME"; exit 2; }
+
+cd "$TARBALLDIR"
+builddir="$NAME.build"
+[[ -d "$builddir" ]] && {(( ! $KEEP )) && rm -rf "$builddir" || mv -T --backup=t "$builddir" "$builddir.old"; }
+mkdir -p "$builddir"
+cd "$builddir"
+
+echo Using template debian directory $(basename "$debiandir")
+for SERIES in "${SERIES_ALL[@]}"; do
+  mkdir -p "$SERIES"
+  pushd "$SERIES"
+    tar -x --strip-components=1 -f ../../$TARBALL
+    cp -a "$CONFDIR/debian" ./
+    cp -a "$debiandir/"* debian/
+    SOURCE=$(sed -n 's/^Source: \(.*\)$/\1/p' debian/control)
+    COPYRIGHT=$(sed -n 's/^Copyright[^0-9]*\(.*\)$/\1/p' README)
+    VRUIVER=$(sed -n 's/^VRUI_MAKEDIR.*Vrui-\([^/]*\).*$/\1/p' makefile)
+    HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
+    [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
+    e=""; for v in "${VARS[@]}"; do e+="s|$v|${!v}|g;"; done
+    sed -i'' "$e" debian/changelog debian/control debian/copyright
+    ORIGTARBALL=$(dpkg-parsechangelog | sed -n 's/^Source: \(.*\)$/\1/p')_
+    ORIGTARBALL+=$(dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*$/\1/p').orig.tar.gz
+    [[ ! -e ../$ORIGTARBALL ]] && (
+      cd ..
+      ln -s ../$TARBALL $ORIGTARBALL
+    )
+    if [[ "$SERIES" == "local" ]]; then
+      echo Creating binary packages locally
+      debuild -j$JOBS -us -uc
+    else
+      echo Creating a source package for series $SERIES
+      debuild -j$JOBS -S $((($inc_orig)) && echo "-sa" || echo "-sd")
+      inc_orig=0
+    fi
+  popd
+done
