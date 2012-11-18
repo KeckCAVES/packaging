@@ -1,8 +1,7 @@
 #!/usr/bin/make -f
 
 DESTDIR=../debian/$(shell sed -n 's/^Package: \(.*\)$$/\1/p' debian/control)
-VRUIVER=$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)
-VRUI_MAKEDIR=/usr/share/Vrui-$(VRUIVER)/make
+VRUI_MAKEDIR=/usr/share/Vrui-$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)/make
 SRCDIR=ExamplePrograms
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
