@@ -2,21 +2,19 @@
 
 # The Ubuntu series to build for.
 # "local" will build binary packages locally.
-#SERIES_ALL=(quantal)
-SERIES_ALL=(local)
-#SERIES_ALL=(oneiric precise quantal raring)
+SERIES_ALL="local oneiric precise quantal raring"
 
 # The package maintainer
-MAINTAINER="Braden Pellett <bpellett@ucdavis.edu>"
+MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
 
 # Full path to the template debian directories
 CONFDIR=$(readlink -f $(dirname "$0"))
 
 # Number of jobs for a parallel build
-JOBS=5
+JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
 
 # Keep intermediate build directories
-KEEP=1
+KEEP=0
 
 ###############################################################################
 
@@ -45,7 +43,7 @@ debiandir="$CONFDIR/$NAME.debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $NAME"; exit 2; }
 
 echo Using template debian directory $(basename "$debiandir")
-for SERIES in "${SERIES_ALL[@]}"; do
+for SERIES in $SERIES_ALL; do
   builddir="$NAME.$SERIES.build"
   [[ -d "$builddir" ]] && {(( ! $KEEP )) && rm -rf "$builddir" || mv -T --backup=t "$builddir" "$builddir.old"; }
   mkdir -p "$builddir"
