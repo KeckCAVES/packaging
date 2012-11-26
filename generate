@@ -24,10 +24,6 @@ SUBPKG="$2"
 
 VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION RELEASE SRCPKGVER SERIES VRUIVER HOMEPAGE COPYRIGHT)
 
-mkdir -p build
-cd build
-wget -N "$URL"
-
 DATE=$(date -R)
 YEAR=$(date +%Y)
 TARBALL=$(basename "$URL")
@@ -41,6 +37,11 @@ SRCPKGVER=$VERSION
 
 debiandir="$CONFDIR/$NAME.debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $NAME"; exit 2; }
+
+mkdir -p build
+cd build
+wget -N "$URL"
+echo "$URL" > "$TARBALL".url
 
 echo Using template debian directory $(basename "$debiandir")
 for SERIES in $SERIES_ALL; do
