@@ -1,7 +1,7 @@
 Source: 3dvisualizer
 Priority: extra
 Maintainer: MAINTAINER
-Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-collaboration-dev
 Standards-Version: 3.9.3
 Section: science
 Homepage: http://keckcaves.org/software/3dvisualizer

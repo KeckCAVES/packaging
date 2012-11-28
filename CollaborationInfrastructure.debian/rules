@@ -23,9 +23,8 @@ override_dh_auto_install:
 	mv $(DESTDIR)/usr/include $(DESTDIR)-dev/usr/
 	mv $(DESTDIR)/usr/share $(DESTDIR)-dev/usr/
 	# utils package
-	install -d debian/vrui-kinect-utils/usr/bin
-	mv $(DESTDIR)/usr/bin debian/vrui-kinect-utils/usr/
-	mv $(DESTDIR)/etc debian/vrui-kinect-utils/
+	install -d debian/vrui-collaboration-utils/usr/bin
+	mv $(DESTDIR)/usr/bin debian/vrui-collaboration-utils/usr/
 
 override_dh_shlibdeps:
 	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:lib" dh_shlibdeps

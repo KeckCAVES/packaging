@@ -1,0 +1,54 @@
+Source: libvruiVRUIVER-collaboration
+Priority: extra
+Maintainer: MAINTAINER
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
+Standards-Version: 3.9.3
+Section: libs
+Homepage: http://idav.ucdavis.edu/~okreylos/ResDev/Collaboration
+
+Package: SOURCE
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: vrui-collaboration-utils
+Description: Vrui Tele-collaboration Infrastructure - Runtime
+ The Collaboration Infrastructure is a framework for the development of
+ collaborative immersive applications between multiple sites, based on a
+ client-server architecture. Any number of clients can dynamically connect to
+ a central collaboration server to participate in a collaborative session.
+ While connected, clients see representations of the viewers and input devices
+ of all other connected clients, can see audio and/or 2D or 3D video from other
+ clients supporting those options, and can use shared annotation tools.
+ .
+ This package contains the runtime library files needed to run software
+ using Vrui with the tele-collaboration infrastructure.
+
+Package: SOURCE-dev
+Section: libdevel
+Architecture: any
+Depends: SOURCE (= ${binary:Version}), ${misc:Depends}, libvruiVRUIVER-dev
+Description: Vrui Tele-collaboration Infrastructure - Development files
+ The Collaboration Infrastructure is a framework for the development of
+ collaborative immersive applications between multiple sites, based on a
+ client-server architecture. Any number of clients can dynamically connect to
+ a central collaboration server to participate in a collaborative session.
+ While connected, clients see representations of the viewers and input devices
+ of all other connected clients, can see audio and/or 2D or 3D video from other
+ clients supporting those options, and can use shared annotation tools.
+ .
+ This package contains the header and development files needed to build
+ programs and packages using Vrui with the tele-collaboration infrastructure.
+
+Package: vrui-collaboration-utils
+Section: utils
+Architecture: any
+Depends: SOURCE, ${shlibs:Depends}, ${misc:Depends}
+Description: Vrui Tele-collaboration Infrastructure - Utilities
+ The Collaboration Infrastructure is a framework for the development of
+ collaborative immersive applications between multiple sites, based on a
+ client-server architecture. Any number of clients can dynamically connect to
+ a central collaboration server to participate in a collaborative session.
+ While connected, clients see representations of the viewers and input devices
+ of all other connected clients, can see audio and/or 2D or 3D video from other
+ clients supporting those options, and can use shared annotation tools.
+ .
+ This package contains the collaboration server and test client.

@@ -1,7 +1,7 @@
 Source: libvruiVRUIVER-kinect
 Priority: extra
 Maintainer: MAINTAINER
-Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-collaboration-dev
 Standards-Version: 3.9.3
 Section: libs
 Homepage: http://idav.ucdavis.edu/~okreylos/ResDev/Kinect
@@ -23,7 +23,7 @@ Description: Kinect 3D Video Capture - Runtime
 Package: SOURCE-dev
 Section: libdevel
 Architecture: any
-Depends: SOURCE (= ${binary:Version}), ${misc:Depends}, libvruiVRUIVER-dev
+Depends: SOURCE (= ${binary:Version}), ${misc:Depends}, libvruiVRUIVER-collaboration-dev
 Description: Kinect 3D Video Capture - Development files
  Software to connect a Kinect to a regular computer, and use it as a 3D camera
  for a variety of 3D graphics and virtual reality applications. The software is
