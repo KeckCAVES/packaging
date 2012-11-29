@@ -8,7 +8,7 @@ SERIES_ALL="local oneiric precise quantal raring"
 MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
 
 # Full path to the template debian directories
-CONFDIR=$(readlink -f $(dirname "$0"))
+TPLDIR=$(readlink -f $(dirname "$0")/../templates)
 
 # Number of jobs for a parallel build
 JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
@@ -35,7 +35,7 @@ VERSION=$(echo "$n" | sed -n '2p')
 RELEASE=$(echo "$n" | sed -n '3p'); RELEASE=${RELEASE:-0}
 SRCPKGVER=$VERSION
 
-debiandir="$CONFDIR/$NAME.debian"
+debiandir="$TPLDIR/$NAME.debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $NAME"; exit 2; }
 
 mkdir -p build
@@ -50,7 +50,7 @@ for SERIES in $SERIES_ALL; do
   mkdir -p "$builddir"
   pushd "$builddir"
     tar -x --strip-components=1 -f ../$TARBALL
-    cp -a "$CONFDIR/debian" ./
+    cp -a "$TPLDIR/debian" ./
     cp -a "$debiandir/"* debian/
     SOURCE=$(sed -n 's/^Source: \(.*\)$/\1/p' debian/control)
     COPYRIGHT=$(sed -n 's/^Copyright[^0-9]*\(.*\)$/\1/p' README)
