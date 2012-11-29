@@ -21,6 +21,7 @@ KEEP=0
 inc_orig=${INC_ORIG:-1}
 URL="$1"
 SUBPKG="$2"
+bindir=$(readlink -f $(dirname "$0"))
 
 VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION RELEASE SRCPKGVER SERIES VRUIVER HOMEPAGE COPYRIGHT)
 
@@ -50,10 +51,10 @@ for SERIES in $SERIES_ALL; do
   mkdir -p "$builddir"
   pushd "$builddir"
     tar -x --strip-components=1 -f ../$TARBALL
+    [[ $COPYRIGHT ]] || COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
     cp -a "$TPLDIR/debian" ./
     cp -a "$debiandir/"* debian/
     SOURCE=$(sed -n 's/^Source: \(.*\)$/\1/p' debian/control)
-    COPYRIGHT=$(sed -n 's/^Copyright[^0-9]*\(.*\)$/\1/p' README)
     VRUIVER=$(sed -n 's/^VRUI_MAKEDIR.*Vrui-\([^/]*\).*$/\1/p' makefile)
     HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
     [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }

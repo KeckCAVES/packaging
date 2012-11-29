@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+grep -Rh '^Copyright' "${1:-.}" 2>/dev/null | grep -o '[0-9].*$' | {
+  declare -A copyrights
+  while read c; do
+    if [[ "$c" =~ ^([0-9]*)-?([0-9]*)\ (.*)$ ]]; then
+      startyear="${BASH_REMATCH[1]}"
+      endyear="${BASH_REMATCH[2]:-$startyear}"
+      names="${BASH_REMATCH[3]}"
+      years=""; for ((i=$startyear;i<=$endyear;i++)); do years+=$i$'\n'; done
+      while [[ $names ]]; do
+        name=${names%%,*}
+        names=${names#$name} && names=${names#, }
+        copyrights[$name]="$years${copyrights[$name]}"
+      done
+    fi
+  done
+  for name in "${!copyrights[@]}"; do
+    years=$(echo "${copyrights[$name]}" | sort -u)
+    years=$(echo $years | sed 's/ /, /g')
+    echo " Copyright $years $name"
+  done
+} | sort
