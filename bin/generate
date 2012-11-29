@@ -55,7 +55,7 @@ for SERIES in $SERIES_ALL; do
     cp -a "$TPLDIR/debian" ./
     cp -a "$debiandir/"* debian/
     SOURCE=$(sed -n 's/^Source: \(.*\)$/\1/p' debian/control)
-    VRUIVER=$(sed -n 's/^VRUI_MAKEDIR.*Vrui-\([^/]*\).*$/\1/p' makefile)
+    VRUIVER=$(grep -Rho '/Vrui-2\.[0-9]*/' | sort -u | sed 's/.*-//;s@/@@')
     HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
     [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
     e=""; for v in "${VARS[@]}"; do e+="s|$v|${!v}|g;"; done
