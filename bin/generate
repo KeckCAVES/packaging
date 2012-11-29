@@ -32,11 +32,11 @@ echo "$URL" > "$TARBALL".url
 
 basename=$(echo $TARBALL | sed -n 's/\.[^0-9]*$//p')
 suffix=${TARBALL#$basename}
-n=$(echo $basename | sed -n 's/-/\n/gp')
-UPSTREAMNAME=$(echo "$n" | sed -n '1p')
+[[ $basename =~ ^([^-]*)-([^-]*)-?(.*)$ ]]
+UPSTREAMNAME=${BASH_REMATCH[1]}
+VERSION=${BASH_REMATCH[2]}
+RELEASE=${BASH_REMATCH[3]}
 NAME="$UPSTREAMNAME$SUBPKG"
-VERSION=$(echo "$n" | sed -n '2p')
-RELEASE=$(echo "$n" | sed -n '3p'); RELEASE=${RELEASE:-0}
 SRCPKGVER=$VERSION
 DATE=$(date -R)
 YEAR=$(date +%Y)
