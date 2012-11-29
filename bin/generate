@@ -25,24 +25,24 @@ bindir=$(readlink -f $(dirname "$0"))
 
 VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION RELEASE SRCPKGVER SERIES VRUIVER HOMEPAGE COPYRIGHT)
 
-DATE=$(date -R)
-YEAR=$(date +%Y)
-TARBALL=$(basename "$URL")
+mkdir -p build
+cd build
+TARBALL=$($bindir/gen-archive "$URL" | tail -n 1)
+echo "$URL" > "$TARBALL".url
+
 basename=$(echo $TARBALL | sed -n 's/\.[^0-9]*$//p')
+suffix=${TARBALL#$basename}
 n=$(echo $basename | sed -n 's/-/\n/gp')
 UPSTREAMNAME=$(echo "$n" | sed -n '1p')
 NAME="$UPSTREAMNAME$SUBPKG"
 VERSION=$(echo "$n" | sed -n '2p')
 RELEASE=$(echo "$n" | sed -n '3p'); RELEASE=${RELEASE:-0}
 SRCPKGVER=$VERSION
+DATE=$(date -R)
+YEAR=$(date +%Y)
 
 debiandir="$TPLDIR/$NAME.debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $NAME"; exit 2; }
-
-mkdir -p build
-cd build
-wget -N "$URL"
-echo "$URL" > "$TARBALL".url
 
 echo Using template debian directory $(basename "$debiandir")
 for SERIES in $SERIES_ALL; do
@@ -61,7 +61,7 @@ for SERIES in $SERIES_ALL; do
     e=""; for v in "${VARS[@]}"; do e+="s|$v|${!v}|g;"; done
     sed -i'' "$e" debian/changelog debian/control debian/copyright
     cl=$(dpkg-parsechangelog)
-    ORIGTARBALL=$(echo "$cl" | sed -n 's/^Source: \(.*\)$/\1/p')_$(echo "$cl" | sed -n 's/^Version: \(.*\)-.*$/\1/p').orig.tar.gz
+    ORIGTARBALL=$(echo "$cl" | sed -n 's/^Source: \(.*\)$/\1/p')_$(echo "$cl" | sed -n 's/^Version: \(.*\)-.*$/\1/p').orig$suffix
     [[ ! -e ../$ORIGTARBALL ]] && ( cd .. && ln -s $TARBALL $ORIGTARBALL )
     if [[ "$SERIES" == "local" ]]; then
       echo Creating binary packages locally

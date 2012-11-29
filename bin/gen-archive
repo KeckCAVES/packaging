@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+url=$1
+case "$url" in
+*.git)
+  dir=$(basename "$url")
+  if [[ -d "$dir" ]]; then
+    cd "$dir"
+    git fetch
+  else
+    git clone --bare "$url"
+    cd "$dir"
+  fi
+  version=$(git describe --match 'v*' HEAD | sed 's/^v//')
+  name=$(basename "$dir" .git)-$version
+  file=$name.tar.gz
+  git archive --prefix="$name/" -o ../"$file" HEAD
+  echo "$file"
+  ;;
+*)
+  wget -N "$url"
+  echo $(basename "$url")
+  ;;
+esac
