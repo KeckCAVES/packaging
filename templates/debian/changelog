@@ -1,4 +1,4 @@
-SOURCE (SRCPKGVER~SERIES1) SERIES; urgency=low
+SOURCE (SRCPKGVER) SERIES; urgency=low
 
   * Auto-generated for TARBALL
     (URL)

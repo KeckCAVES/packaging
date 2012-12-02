@@ -1,4 +1,4 @@
-Source: libvruiVERSION
+Source: libvruiVRUIVER
 Priority: extra
 Maintainer: MAINTAINER
 Build-Depends: debhelper (>= 8.0.0), zlib1g-dev, libusb-1.0-0-dev, libpng-dev, libjpeg-dev, libtiff-dev, libasound2-dev, libspeex-dev, libopenal-dev, libv4l-dev, libdc1394-22-dev, libtheora-dev, libbluetooth-dev, mesa-common-dev, libgl1-mesa-dev, libglu1-mesa-dev
@@ -6,7 +6,7 @@ Standards-Version: 3.9.3
 Section: libs
 Homepage: http://keckcaves.org/software/vrui
 
-Package: libvruiVERSION
+Package: SOURCE
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Vrui VR toolkit - Runtime
@@ -16,10 +16,10 @@ Description: Vrui VR toolkit - Runtime
  This package contains the runtime library files needed to run software
  using Vrui.
 
-Package: libvruiVERSION-dev
+Package: SOURCE-dev
 Section: libdevel
 Architecture: any
-Depends: libvruiVERSION (= ${binary:Version}), ${misc:Depends}, zlib1g-dev, libusb-1.0-0-dev, libpng-dev, libjpeg-dev, libtiff-dev, libasound2-dev, libspeex-dev, libopenal-dev, libv4l-dev, libdc1394-22-dev, libtheora-dev, libbluetooth-dev, mesa-common-dev, libgl1-mesa-dev, libglu1-mesa-dev
+Depends: SOURCE (= ${binary:Version}), ${misc:Depends}, zlib1g-dev, libusb-1.0-0-dev, libpng-dev, libjpeg-dev, libtiff-dev, libasound2-dev, libspeex-dev, libopenal-dev, libv4l-dev, libdc1394-22-dev, libtheora-dev, libbluetooth-dev, mesa-common-dev, libgl1-mesa-dev, libglu1-mesa-dev
 Description: Vrui VR toolkit - Development files
  The Vrui VR toolkit simplifies creation of portable and highly interactive
  fully-immersive virtual reality applications.
@@ -27,7 +27,7 @@ Description: Vrui VR toolkit - Development files
  This package contains the header and development files needed to build
  programs and packages using Vrui.
 
-Package: libvruiVERSION-doc
+Package: SOURCE-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
@@ -41,7 +41,7 @@ Description: Vrui VR toolkit - Documentation
 Package: vrui-utils
 Section: utils
 Architecture: any
-Depends: libvruiVERSION, ${shlibs:Depends}, ${misc:Depends}
+Depends: SOURCE, ${shlibs:Depends}, ${misc:Depends}
 Description: Vrui VR toolkit - Utilities
  The Vrui VR toolkit simplifies creation of portable and highly interactive
  fully-immersive virtual reality applications.
