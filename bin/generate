@@ -32,8 +32,9 @@ TARBALL=$($bindir/gen-archive "$URL" | tail -n 1)
 echo "$URL" > "$TARBALL".url
 cd ..
 
-basename=$(echo $TARBALL | sed -n 's/\.[^0-9]*$//p')
-suffix=${TARBALL#$basename}
+[[ $TARBALL =~ ^(.*)\.(tar.(gz|bz2|lzma|xz))$ ]]
+basename=${BASH_REMATCH[1]}
+suffix=${BASH_REMATCH[2]}
 [[ $basename =~ ^([^-]*)-(.*)$ ]]
 UPSTREAMNAME=${BASH_REMATCH[1]}
 VERSION=${BASH_REMATCH[2]}
@@ -63,7 +64,7 @@ for SERIES in $ALLSERIES; do
     [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
     e=""; for v in "${VARS[@]}"; do e+="s|$v|${!v}|g;"; done
     sed -i'' "$e" debian/changelog debian/control debian/copyright
-    origtarball=$(srcname)_$VERSION.orig$suffix
+    origtarball=$(srcname)_$VERSION.orig.$suffix
     [[ ! -e ../$origtarball ]] && ( cd .. && ln -s cache/$TARBALL $origtarball )
     [[ $SERIES != "local" ]] && {
       reposrcpkgver=$(wget -nv -O - "$APTURL"/dists/$SERIES/main/source/Sources | sed '/^Package: '$(srcname)'$/,/^$/s/^Version: //p;d')
