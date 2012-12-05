@@ -1,8 +1,7 @@
 #!/bin/bash -e
 
 # The Ubuntu series to build for.
-# "local" will build binary packages locally.
-ALLSERIES="local oneiric precise quantal raring"
+ALLSERIES=(oneiric precise quantal raring)
 
 # The package maintainer
 MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
@@ -16,16 +15,13 @@ APTURL='http://ppa.launchpad.net/keckcaves/ppa/ubuntu'
 # Number of jobs for a parallel build
 JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
 
-# Keep intermediate build directories
-KEEP=0
-
 ###############################################################################
 
 URL="$1"
 subpkg="$2"
 bindir=$(readlink -f $(dirname "$0"))
-
-VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION SERIES VRUIVER HOMEPAGE COPYRIGHT)
+ALLSERIES=(local "${ALLSERIES[@]}")
+VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION VRUIVER HOMEPAGE COPYRIGHT)
 
 mkdir -p build/cache; cd build/cache
 TARBALL=$($bindir/gen-archive "$URL" | tail -n 1)
@@ -41,52 +37,55 @@ VERSION=${BASH_REMATCH[2]}
 tplname="$UPSTREAMNAME$subpkg"
 DATE=$(date -R)
 YEAR=$(date +%Y)
-DEBREVCNT=1
-unset haveorig
-builddir(){ echo "$tplname.$SERIES.build";}
 srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
 
 debiandir="$TPLDIR/$tplname.debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $tplname"; exit 2; }
 
-# Set up a build directory for each target series
-for SERIES in $ALLSERIES; do
-  [[ -d "$(builddir)" ]] && {(( ! $KEEP )) && rm -rf "$(builddir)" || mv -T --backup=t "$(builddir)" "$(builddir).old"; }
-  mkdir -p "$(builddir)"
-  pushd "$(builddir)"
-    tar -x --strip-components=1 -f ../cache/$TARBALL
-    [[ $COPYRIGHT ]] || COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
-    cp -a "$TPLDIR/debian" ./
-    cp -a "$debiandir/"* debian/
-    SOURCE=$(srcname)
-    [[ $VRUIVER ]] || VRUIVER=$(grep -Rho '/Vrui-2\.[0-9]*/' | sort -u | sed 's/.*-//;s@/@@')
-    HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
-    [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
-    e=""; for v in "${VARS[@]}"; do e+="s|$v|${!v}|g;"; done
-    sed -i'' "$e" debian/changelog debian/control debian/copyright
-    origtarball=$(srcname)_$VERSION.orig.$suffix
-    [[ ! -e ../$origtarball ]] && ( cd .. && ln -s cache/$TARBALL $origtarball )
-    [[ $SERIES != "local" ]] && {
-      reposrcpkgver=$(wget -nv -O - "$APTURL"/dists/$SERIES/main/source/Sources | sed '/^Package: '$(srcname)'$/,/^$/s/^Version: //p;d')
-      repoupstreamver=${reposrcpkgver%-*}
-      repodebrev=${reposrcpkgver##*-}
-      [[ $repoupstreamver == $VERSION ]] && {
-        debrevcnt=$((${repodebrev%%~*}+1)); (($debrevcnt>$DEBREVCNT)) && DEBREVCNT=$debrevcnt
-        haveorig=1
-      }
-    }
-  popd
+# Create series-independent build directory from templates
+builddirs=($(mktemp -d $tplname.XXXXX.0))
+pushd "${builddirs[0]}"
+  tar -x --strip-components=1 -f ../cache/$TARBALL
+  COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
+  cp -a "$TPLDIR/debian" ./
+  cp -a "$debiandir/"* debian/
+  SOURCE=$(srcname)
+  VRUIVER=$(grep -Rho '/Vrui-[0-9]\.[0-9]*/' | sort -u | sed 's/.*-//;s@/@@')
+  HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
+  [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
+  { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
+  srcname=$(srcname)
+  DEBREVCNT=1
+  ln -sTf cache/$TARBALL ../${srcname}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
+  for ver in $(wget -nv -O - $(for s in ${ALLSERIES[@]/local/}; do echo "$APTURL/dists/$s/main/source/Sources"; done) | sed '/^Package: '$srcname'$/,/^$/s/^Version: //p;d'); do 
+    [[ ${ver%-*} == $VERSION ]] && [[ $ver =~ -([0-9]*)~ ]] && { n=$((${BASH_REMATCH[1]}+1)); (($n>$DEBREVCNT)) && DEBREVCNT=$n;}
+  done
+  (( $DEBREVCNT > 1 )) && haveorig=1 || unset haveorig
+  sed -i'' "s/DEBREVCNT/$DEBREVCNT/g" debian/changelog
+popd
+
+# From series-independent build directory, create one build directory per series
+for ((n=1; n<${#ALLSERIES[@]}; ++n)); do
+  builddirs+=(${builddirs[0]%.*}.$n)
+  cp -afT "${builddirs[0]}" "${builddirs[-1]}"
+done
+for ((n=0; n<${#ALLSERIES[@]}; ++n)); do
+  sed -i'' "s/SERIES/${ALLSERIES[$n]}/g" "${builddirs[$n]}"/debian/changelog
+  builddir=${srcname}_$(sed '1s/.*(\([^)]*\)).*/\1/p;d' "${builddirs[$n]}"/debian/changelog).builddir
+  rm -rf "$builddir"
+  mv "${builddirs[$n]}" "$builddir"
+  builddirs[$n]=$builddir
 done
 
-# Do the build for each target series
-for SERIES in $ALLSERIES; do
-  pushd "$(builddir)"
-    SRCPKGVER=$VERSION-$DEBREVCNT~$SERIES
-    sed -i'' "s/SRCPKGVER/$SRCPKGVER/g" debian/changelog
-    if [[ "$SERIES" == "local" ]]; then
+# Build from each build directory
+for builddir in "${builddirs[@]}"; do
+  pushd "$builddir"
+    distro=$(parsechangelog | sed 's/^Distribution: //p;d')
+    if [[ $distro == local ]]; then
       debuild -j$JOBS -b -D -us -uc --lintian-opts --suppress-tags bad-distribution-in-changes-file
     else
-      debuild -j$JOBS -S $(((${haveorig:=1})) && echo "-sa" || echo "-sd")
+      debuild -j$JOBS -S $((($haveorig)) && echo "-sd" || echo "-sa")
+      haveorig=1
     fi
   popd
 done
