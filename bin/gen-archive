@@ -6,7 +6,7 @@ case "$url" in
   dir=$(basename "$url")
   if [[ -d "$dir" ]]; then
     cd "$dir"
-    git fetch
+    git fetch origin +master:master
   else
     git clone --bare "$url"
     cd "$dir"
