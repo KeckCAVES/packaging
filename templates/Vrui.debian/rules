@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+SHELL=/bin/bash
 SRCNAME=$(shell dpkg-parsechangelog | sed -n 's/^Source: \(.*\)$$/\1/p')
 VER=$(patsubst libvrui%,%,$(SRCNAME))
 VRUINAME=Vrui-$(VER)
@@ -23,7 +24,17 @@ override_dh_auto_install:
 	$(MAKE) SYSTEMINSTALL=1 PKGCONFIGFILE=$(PKGCONFIGFILE) LIBEXT=lib INSTALLDIR=$(DESTDIR) install
 	install -d $(DESTDIR)/$(SHAREETC)
 	mv $(DESTDIR)/etc/$(VRUINAME)/* $(DESTDIR)/$(SHAREETC)/
-	mv $(DESTDIR)/$(SHAREETC)/Vrui.cfg $(DESTDIR)/etc/$(VRUINAME)/
+	{\
+	  d=$$(mktemp -d tmp.XXXX) ;\
+	  max=$$(awk '{print>"'$$d/'cfg"n}/^(\tend)?section/{n++}END{print n}' ${DESTDIR}/${SHAREETC}/Vrui.cfg) ;\
+	  for ((n=1;n<$$max;++n)); do \
+	    s=$$(sed 's/^\tsection "\?\([^"]*\).*$$/\1/p;d' $$d/cfg$$n) ;\
+	    cat $$d/cfg $$d/cfg$$n $$d/cfg$$max >${DESTDIR}/${SHAREETC}/$${s//./-}.cfg ;\
+          done ;\
+          rm -rf $$d ;\
+	}
+	rm ${DESTDIR}/${SHAREETC}/Vrui.cfg
+	install $(DESTDIR)/$(SHAREETC)/Desktop.cfg $(DESTDIR)/etc/$(VRUINAME)/Vrui.cfg
 	# dev package
 	install -d $(DESTDIR)-dev/usr/lib
 	install -d $(DESTDIR)-dev/usr/share/$(VRUINAME)
