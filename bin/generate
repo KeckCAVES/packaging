@@ -50,7 +50,7 @@ pushd "${builddirs[0]}"
   cp -a "$TPLDIR/debian" ./
   cp -a "$debiandir/"* debian/
   SOURCE=$(srcname)
-  VRUIVER=$(grep -Rho '/Vrui-[0-9]\.[0-9]*/' | sort -u | sed 's/.*-//;s@/@@')
+  VRUIVER=$(grep -RIho '/Vrui-[0-9]\.[0-9]*[ /)]' | sed 's/.*-//;s/.$//' | sort -u)
   HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
   [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
   { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
