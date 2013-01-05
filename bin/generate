@@ -39,7 +39,7 @@ DATE=$(date -R)
 YEAR=$(date +%Y)
 srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
 
-debiandir="$TPLDIR/$tplname.debian"
+debiandir="$TPLDIR/software/$tplname/debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $tplname"; exit 2; }
 
 # Create series-independent build directory from templates
@@ -47,7 +47,7 @@ builddirs=($(mktemp -d $tplname.XXXXX.0))
 pushd "${builddirs[0]}"
   tar -x --strip-components=1 -f ../cache/$TARBALL
   COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
-  cp -a "$TPLDIR/debian" ./
+  cp -a "$TPLDIR/formats/debian" ./
   cp -a "$debiandir/"* debian/
   SOURCE=$(srcname)
   VRUIVER=$(grep -RIho '/Vrui-[0-9]\.[0-9]*[ /)]' | sed 's/.*-//;s/.$//' | sort -u)
