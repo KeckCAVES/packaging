@@ -17,15 +17,24 @@ JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
 
 ###############################################################################
 
-URL="$1"
-subpkg="$2"
+SW=$1
+tag=$2
+[[ -z $SW ]] && { echo "Usage: $(basename $0) <software> [tag]"; exit 2; }
+
 bindir=$(readlink -f $(dirname "$0"))
 ALLSERIES=(local "${ALLSERIES[@]}")
 VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION VRUIVER HOMEPAGE COPYRIGHT)
 
-mkdir -p build/cache; cd build/cache
-TARBALL=$($bindir/gen-archive "$URL" | tail -n 1)
-echo "$URL" > "$TARBALL".url
+tpldir="$TPLDIR/software/$1"
+debiandir="$tpldir/debian"
+[[ ! -e "$tpldir" ]] && { echo "Cannot find template for $SW"; exit 2; }
+[[ ! -e "$debiandir" ]] && { echo "Cannot find debian template for $SW"; exit 2; }
+[[ -f "$TPLDIR/VARS" ]] && source "$TPLDIR/VARS"
+[[ -f "$tpldir/VARS" ]] && source "$tpldir/VARS"
+
+mkdir -p build/cache
+cd build/cache
+TARBALL=$($bindir/gen-archive "$URL" "$tag" | tail -n 1)
 cd ..
 
 [[ $TARBALL =~ ^(.*)\.(tar.(gz|bz2|lzma|xz))$ ]]
@@ -34,23 +43,19 @@ suffix=${BASH_REMATCH[2]}
 [[ $basename =~ ^([^-]*)-(.*)$ ]]
 UPSTREAMNAME=${BASH_REMATCH[1]}
 VERSION=${BASH_REMATCH[2]}
-tplname="$UPSTREAMNAME$subpkg"
 DATE=$(date -R)
 YEAR=$(date +%Y)
 srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
 
-debiandir="$TPLDIR/software/$tplname/debian"
-[[ ! -e "$debiandir" ]] && { echo "Cannot find any template debian directories for $tplname"; exit 2; }
-
 # Create series-independent build directory from templates
-builddirs=($(mktemp -d $tplname.XXXXX.0))
+builddirs=($(mktemp -d $SW.XXXXX.0))
 pushd "${builddirs[0]}"
   tar -x --strip-components=1 -f ../cache/$TARBALL
   COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
   cp -a "$TPLDIR/formats/debian" ./
   cp -a "$debiandir/"* debian/
   SOURCE=$(srcname)
-  VRUIVER=$(grep -RIho '/Vrui-[0-9]\.[0-9]*[ /)]' | sed 's/.*-//;s/.$//' | sort -u)
+  VRUIVER=$(grep -RIho '/Vrui-[0-9]\.[0-9]*[ /)]' | sed 's/.*-//;s/.$//' | sort -u | tail -n 1)
   HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
   [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
   { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright

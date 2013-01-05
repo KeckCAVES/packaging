@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 url=$1
+tag=${2:-HEAD}
 case "$url" in
 *.git)
   dir=$(basename "$url")
@@ -11,10 +12,10 @@ case "$url" in
     git clone --bare "$url"
     cd "$dir"
   fi
-  version=$(git describe --match 'v*' HEAD | sed 's/^v//')
+  version=$(git describe --match 'v*' "$tag" | sed 's/^v//')
   name=$(basename "$dir" .git)-$version
   file=$name.tar.gz
-  git archive --prefix="$name/" -o ../"$file" HEAD
+  git archive --prefix="$name/" -o ../"$file" "$tag"
   echo "$file"
   ;;
 *)

@@ -1,7 +1,7 @@
 Source: vrui-examples
 Priority: extra
 Maintainer: MAINTAINER
-Build-Depends: debhelper (>= 8.0.0), libvruiVERSION-dev
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
 Standards-Version: 3.9.3
 Section: misc
 Homepage: http://keckcaves.org/software/vrui
