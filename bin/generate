@@ -6,8 +6,14 @@ ALLSERIES=(oneiric precise quantal raring)
 # The package maintainer
 MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
 
-# Full path to the template debian directories
-TPLDIR=$(readlink -f $(dirname "$0")/../templates)
+# Path to the template debian directories
+TPLDIR=$(dirname "$0")/../templates
+
+# Path to where to generate the packages
+BUILDDIR=build
+
+# Path to where to keep archives and cloned repositories
+CACHEDIR=cache
 
 # URL of apt repository of available software
 APTURL='http://ppa.launchpad.net/keckcaves/ppa/ubuntu'
@@ -21,9 +27,16 @@ SW=$1
 rev=$2
 [[ -z $SW ]] && { echo "Usage: $(basename $0) <software> [revision]"; exit 2; }
 
+TPLDIR=$(readlink -f "$TPLDIR")
+BUILDDIR=$(readlink -f "$BUILDDIR")
+CACHEDIR=$(readlink -f "$CACHEDIR")
 bindir=$(readlink -f $(dirname "$0"))
 ALLSERIES=(local "${ALLSERIES[@]}")
 VARS=(SOURCE NAME DATE YEAR MAINTAINER URL REVISION VERSION VRUIVER HOMEPAGE COPYRIGHT)
+DATE=$(date -R)
+YEAR=$(date +%Y)
+suffix="tar.gz"
+srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
 
 tpldir="$TPLDIR/software/$1"
 debiandir="$tpldir/debian"
@@ -32,20 +45,17 @@ debiandir="$tpldir/debian"
 [[ -f "$TPLDIR/VARS" ]] && source "$TPLDIR/VARS"
 [[ -f "$tpldir/VARS" ]] && source "$tpldir/VARS"
 
-suffix="tar.gz"
-mkdir -p build/cache
-cd build/cache
+mkdir -p "$CACHEDIR"
+cd "$CACHEDIR"
 eval $($bindir/gen-archive "$URL" "$rev" "$suffix")
-cd ..
 
-DATE=$(date -R)
-YEAR=$(date +%Y)
-srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
+mkdir -p "$BUILDDIR"
+cd "$BUILDDIR"
 
 # Create series-independent build directory from templates
 builddirs=($(mktemp -d $SW.XXXXX.0))
 pushd "${builddirs[0]}"
-  tar -x --strip-components=1 -f ../cache/$TARBALL
+  tar -x --strip-components=1 -f "$CACHEDIR/$TARBALL"
   COPYRIGHT="\n$($bindir/gen-copyrights | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
   cp -a "$TPLDIR/formats/debian" ./
   cp -a "$debiandir/"* debian/
@@ -56,7 +66,7 @@ pushd "${builddirs[0]}"
   { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
   srcname=$(srcname)
   DEBREVCNT=1
-  ln -sTf cache/$TARBALL ../${srcname}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
+  ln -sTf "$CACHEDIR/$TARBALL" ../${srcname}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
   for ver in $(wget -nv -O - $(for s in ${ALLSERIES[@]/local/}; do echo "$APTURL/dists/$s/main/source/Sources"; done) | sed '/^Package: '$srcname'$/,/^$/s/^Version: //p;d'); do 
     [[ ${ver%-*} == $VERSION ]] && [[ $ver =~ -([0-9]*)~ ]] && { n=$((${BASH_REMATCH[1]}+1)); (($n>$DEBREVCNT)) && DEBREVCNT=$n;}
   done
