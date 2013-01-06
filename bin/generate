@@ -18,12 +18,12 @@ JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
 ###############################################################################
 
 SW=$1
-tag=$2
-[[ -z $SW ]] && { echo "Usage: $(basename $0) <software> [tag]"; exit 2; }
+rev=$2
+[[ -z $SW ]] && { echo "Usage: $(basename $0) <software> [revision]"; exit 2; }
 
 bindir=$(readlink -f $(dirname "$0"))
 ALLSERIES=(local "${ALLSERIES[@]}")
-VARS=(SOURCE UPSTREAMNAME DATE YEAR MAINTAINER URL TARBALL VERSION VRUIVER HOMEPAGE COPYRIGHT)
+VARS=(SOURCE NAME DATE YEAR MAINTAINER URL REVISION VERSION VRUIVER HOMEPAGE COPYRIGHT)
 
 tpldir="$TPLDIR/software/$1"
 debiandir="$tpldir/debian"
@@ -32,17 +32,12 @@ debiandir="$tpldir/debian"
 [[ -f "$TPLDIR/VARS" ]] && source "$TPLDIR/VARS"
 [[ -f "$tpldir/VARS" ]] && source "$tpldir/VARS"
 
+suffix="tar.gz"
 mkdir -p build/cache
 cd build/cache
-TARBALL=$($bindir/gen-archive "$URL" "$tag" | tail -n 1)
+eval $($bindir/gen-archive "$URL" "$rev" "$suffix")
 cd ..
 
-[[ $TARBALL =~ ^(.*)\.(tar.(gz|bz2|lzma|xz))$ ]]
-basename=${BASH_REMATCH[1]}
-suffix=${BASH_REMATCH[2]}
-[[ $basename =~ ^([^-]*)-(.*)$ ]]
-UPSTREAMNAME=${BASH_REMATCH[1]}
-VERSION=${BASH_REMATCH[2]}
 DATE=$(date -R)
 YEAR=$(date +%Y)
 srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}

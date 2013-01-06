@@ -1,25 +1,35 @@
 #!/bin/bash -e
 
+{
+(($#==3)) || { echo "Usage: $(basename $0) <url> <revision> <suffix>" && exit 2 ;}
 url=$1
-tag=${2:-HEAD}
+REVISION=$2
+SUFFIX=${3:-tar.gz}
 case "$url" in
 *.git)
+  rev=${REVISION:-HEAD}
   dir=$(basename "$url")
   if [[ -d "$dir" ]]; then
-    cd "$dir"
-    git fetch origin +master:master
+    git --git-dir="$dir" fetch origin +master:master
   else
-    git clone --bare "$url"
-    cd "$dir"
+    git clone --bare "$url" "$dir"
   fi
-  version=$(git describe --match 'v*' "$tag" | sed 's/^v//')
-  name=$(basename "$dir" .git)-$version
-  file=$name.tar.gz
-  git archive --prefix="$name/" -o ../"$file" "$tag"
-  echo "$file"
+  NAME=$(basename "$dir" .git)
+  VERSION=$(git --git-dir="$dir" describe --match 'v*' "$rev" | sed 's/^v//')
+  namever=$NAME-$VERSION
+  TARBALL=$namever.$SUFFIX
+  git --git-dir="$dir" archive --prefix="$namever/" -o "$TARBALL" "$rev"
+  REVISION=${REVISION:-$(git --git-dir="$dir" describe --always "$rev")}
   ;;
 *)
-  wget -N "$url"
-  echo $(basename "$url")
+  echo "Unknown repository type"
+  exit 1
   ;;
 esac
+} 1>&2
+
+echo "NAME=$NAME"
+echo "REVISION=$REVISION"
+echo "VERSION=$VERSION"
+echo "SUFFIX=$SUFFIX"
+echo "TARBALL=$TARBALL"
