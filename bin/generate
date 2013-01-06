@@ -1,33 +1,12 @@
 #!/bin/bash -e
 
-# The Ubuntu series to build for.
-ALLSERIES=(oneiric precise quantal raring)
-
-# The package maintainer
-MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
-
-# Path to the template debian directories
-TPLDIR=$(dirname "$0")/../templates
-
-# Path to where to generate the packages
-BUILDDIR=build
-
-# Path to where to keep archives and cloned repositories
-CACHEDIR=cache
-
-# URL of apt repository of available software
-APTURL='http://ppa.launchpad.net/keckcaves/ppa/ubuntu'
-
-# Number of jobs for a parallel build
-JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
-
-###############################################################################
-
 SW=$1
 rev=$2
 [[ -z $SW ]] && { echo "Usage: $(basename $0) <software> [revision]"; exit 2; }
 
-TPLDIR=$(readlink -f "$TPLDIR")
+TPLDIR=$(dirname "$0")/../templates; TPLDIR=$(readlink -f "$TPLDIR")
+source "$TPLDIR/VARS"
+
 BUILDDIR=$(readlink -f "$BUILDDIR")
 CACHEDIR=$(readlink -f "$CACHEDIR")
 bindir=$(readlink -f $(dirname "$0"))
@@ -42,7 +21,7 @@ tpldir="$TPLDIR/software/$1"
 debiandir="$tpldir/debian"
 [[ ! -e "$tpldir" ]] && { echo "Cannot find template for $SW"; exit 2; }
 [[ ! -e "$debiandir" ]] && { echo "Cannot find debian template for $SW"; exit 2; }
-[[ -f "$TPLDIR/VARS" ]] && source "$TPLDIR/VARS"
+[[ -f "$TPLDIR/software/VARS" ]] && source "$TPLDIR/software/VARS"
 [[ -f "$tpldir/VARS" ]] && source "$tpldir/VARS"
 
 mkdir -p "$CACHEDIR"

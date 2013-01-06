@@ -1,1 +1,17 @@
-URL=git://github.com/KeckCAVES/$SW.git
+# Path to where to generate the packages
+BUILDDIR=build
+
+# Path to where to keep archives and cloned repositories
+CACHEDIR=cache
+
+# The package maintainer
+MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
+
+# Number of jobs for a parallel build
+JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
+
+# The Ubuntu series to build for.
+ALLSERIES=(oneiric precise quantal raring)
+
+# URL of apt repository of available software
+APTURL='http://ppa.launchpad.net/keckcaves/ppa/ubuntu'
