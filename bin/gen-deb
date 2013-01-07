@@ -10,12 +10,12 @@ source "$TPLDIR/VARS"
 BUILDDIR=$(readlink -f "$BUILDDIR")
 CACHEDIR=$(readlink -f "$CACHEDIR")
 bindir=$(readlink -f $(dirname "$0"))
-ALLSERIES=(local "${ALLSERIES[@]}")
 VARS=(SOURCE NAME DATE YEAR MAINTAINER URL REVISION VERSION VRUIVER HOMEPAGE COPYRIGHT)
 DATE=$(date -R)
 YEAR=$(date +%Y)
 suffix="tar.gz"
-srcname(){ sed -n 's/^Source: \(.*\)$/\1/p' debian/control;}
+srcname(){ sed 's/^Source: \(.*\)$/\1/p;d' "${1:-./}"debian/control ;}
+srcver(){ sed '1s/.*(\([^)]*\)).*/\1/p;d' "${1:-./}"/debian/changelog ;}
 
 tpldir="$TPLDIR/software/$1"
 debiandir="$tpldir/debian"
@@ -60,21 +60,38 @@ for ((n=1; n<${#ALLSERIES[@]}; ++n)); do
 done
 for ((n=0; n<${#ALLSERIES[@]}; ++n)); do
   sed -i'' "s/SERIES/${ALLSERIES[$n]}/g" "${builddirs[$n]}"/debian/changelog
-  builddir=${srcname}_$(sed '1s/.*(\([^)]*\)).*/\1/p;d' "${builddirs[$n]}"/debian/changelog).builddir
+  builddir=${srcname}_$(srcver "${builddirs[$n]}").builddir
   rm -rf "$builddir"
   mv "${builddirs[$n]}" "$builddir"
   builddirs[$n]=$builddir
 done
 
 # Build from each build directory
+dscs=()
 for builddir in "${builddirs[@]}"; do
   pushd "$builddir"
     distro=$(parsechangelog | sed 's/^Distribution: //p;d')
     if [[ $distro == local ]]; then
       debuild -j$JOBS -b -D -us -uc --lintian-opts --suppress-tags bad-distribution-in-changes-file
     else
-      debuild -j$JOBS -S $((($haveorig)) && echo "-sd" || echo "-sa")
+      debuild -j$JOBS -S $( (($haveorig)) && echo "-sd" || echo "-sa" )
       haveorig=1
+      dscs+=(${builddir%.*}.dsc)
     fi
   popd
 done
+
+# Build binary packages using pbuilder-dist
+d=$(mktemp -d)
+cat >"$d/D00update-local-repo" <<-.
+  (cd $BUILDDIR; dpkg-scanpackages -m . > Packages)
+  apt-get update
+.
+chmod +x "$d"/*
+for dsc in "${dscs[@]}"; do
+  series=$(sed 's/^Version: .*~//p;d' "$dsc")
+  for arch in "${ALLARCH[@]}"; do
+    pbuilder-dist $series $arch build --allow-untrusted --debbuildopts "-j$JOBS" --buildresult "$BUILDDIR" --bindmounts "$BUILDDIR" --hookdir "$d" --othermirror "deb file://$BUILDDIR ./" --override-config "$dsc"
+  done
+done
+rm -rf "$d"
