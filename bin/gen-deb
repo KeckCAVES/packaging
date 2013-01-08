@@ -10,7 +10,7 @@ source "$TPLDIR/VARS"
 BUILDDIR=$(readlink -f "$BUILDDIR")
 CACHEDIR=$(readlink -f "$CACHEDIR")
 bindir=$(readlink -f $(dirname "$0"))
-VARS=(SOURCE NAME DATE YEAR MAINTAINER URL REVISION VERSION VRUIVER HOMEPAGE COPYRIGHT)
+VARS=(SOURCE NAME DATE YEAR MAINTAINER URL REVISION VERSION HOMEPAGE COPYRIGHT)
 DATE=$(date -R)
 YEAR=$(date +%Y)
 suffix="tar.gz"
@@ -39,7 +39,6 @@ pushd "${builddirs[0]}"
   cp -a "$TPLDIR/formats/debian" ./
   cp -a "$debiandir/"* debian/
   SOURCE=$(srcname)
-  VRUIVER=$(grep -RIho '/Vrui-[0-9]\.[0-9]*[ /)]' | sed 's/.*-//;s/.$//' | sort -u | tail -n 1)
   HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
   [[ -f debian/VARS ]] && { source debian/VARS; rm debian/VARS; }
   { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
