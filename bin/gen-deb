@@ -66,7 +66,7 @@ for ((n=0; n<${#ALLSERIES[@]}; ++n)); do
 done
 
 # Build from each build directory
-dscs=()
+srcs=()
 for builddir in "${builddirs[@]}"; do
   pushd "$builddir"
     distro=$(parsechangelog | sed 's/^Distribution: //p;d')
@@ -75,7 +75,7 @@ for builddir in "${builddirs[@]}"; do
     else
       debuild -j$JOBS -S $( (($haveorig)) && echo "-sd" || echo "-sa" )
       haveorig=1
-      dscs+=(${builddir%.*}.dsc)
+      srcs+=(${builddir%.*})
     fi
   popd
 done
@@ -87,10 +87,10 @@ cat >"$d/D00update-local-repo" <<-.
   apt-get update
 .
 chmod +x "$d"/*
-for dsc in "${dscs[@]}"; do
-  series=$(sed 's/^Version: .*~//p;d' "$dsc")
+for src in "${srcs[@]}"; do
+  series=$(sed 's/^Distribution: //p;d' "${src}_source.changes")
   for arch in "${ALLARCH[@]}"; do
-    pbuilder-dist $series $arch build --allow-untrusted --debbuildopts "-j$JOBS" --buildresult "$BUILDDIR" --bindmounts "$BUILDDIR" --hookdir "$d" --othermirror "deb file://$BUILDDIR ./" --override-config "$dsc"
+    pbuilder-dist $series $arch build --allow-untrusted --debbuildopts "-j$JOBS" --buildresult "$BUILDDIR" --bindmounts "$BUILDDIR" --hookdir "$d" --othermirror "deb file://$BUILDDIR ./" --override-config "$src.dsc"
   done
 done
 rm -rf "$d"
