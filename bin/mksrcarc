@@ -1,0 +1,35 @@
+#!/bin/bash
+source "$(dirname "$0")"/../lib/init
+
+{
+(($#==3)) || { echo "Usage: $(basename $0) <url> <revision> <suffix>" && exit 2 ;}
+url=$1
+SRCREV=$2
+suffix=${3:-tar.gz}
+case "$url" in
+*.git)
+  rev=${SRCREV:-HEAD}
+  dir=$(basename "$url")
+  if [[ -d "$dir" ]]; then
+    git --git-dir="$dir" fetch origin +master:master
+  else
+    git clone --bare "$url" "$dir"
+  fi
+  SRCNAME=$(basename "$dir" .git)
+  SRCVER=$(git --git-dir="$dir" describe --match 'v*' "$rev" | sed 's/^v//')
+  namever=$SRCNAME-$SRCVER
+  SRCARC=$namever.$suffix
+  git --git-dir="$dir" archive --prefix="$namever/" -o "$SRCARC" "$rev"
+  SRCREV=${SRCREV:-$(git --git-dir="$dir" describe --always "$rev")}
+  ;;
+*)
+  echo "Unknown repository type"
+  exit 1
+  ;;
+esac
+} 1>&2
+
+echo "SRCNAME=$SRCNAME"
+echo "SRCREV=$SRCREV"
+echo "SRCVER=$SRCVER"
+echo "SRCARC=$SRCARC"

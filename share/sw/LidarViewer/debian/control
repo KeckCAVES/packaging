@@ -1,0 +1,14 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev
+Section: science
+Homepage: http://keckcaves.org/software/lidarviewer
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Application for visualizing and measuring 3D point cloud data
+ LiDAR Viewer is an application for visualizing and measuring 3D point cloud
+ data, such as that collected via terrestrial or airborne LiDAR surveys. The
+ software was developed to enable analysis of multi-billion-point lidar data
+ sets without requiring binning, sub-sampling, decimation, or digital surface
+ modeling.

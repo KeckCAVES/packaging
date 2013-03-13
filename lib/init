@@ -1,0 +1,16 @@
+set -o errexit
+shopt -s nullglob
+IFS=""
+basedir=$(dirname "$0")/..; basedir=$(readlink -m "$basedir")
+source "$basedir/etc/config"
+bindir=$basedir/bin
+sharedir=$basedir/share
+CACHEDIR=$(readlink -m "$CACHEDIR")
+DEBUILDDIR=$(readlink -m "$DEBUILDDIR")
+PBUILDERDIR=$(readlink -m "$PBUILDERDIR")
+
+getswvars() {
+  swdir="$sharedir/sw/$1"
+  [[ ! -e "$swdir" ]] && { echo "Unknown software $SW"; exit 2; }
+  [[ -f "$swdir/VARS" ]] && source "$swdir/VARS"
+}

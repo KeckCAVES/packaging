@@ -1,0 +1,41 @@
+#!/bin/bash
+source "$(dirname "$0")"/../lib/init
+
+grep --exclude='COPYING' -REIho '[Cc]opyright.*[0-9]+ .*' "${1:-.}" 2>/dev/null | grep -o '[0-9].*$' | {
+  while read c; do
+    [[ "$c" =~ ^([-, 0-9]+)\ (.+)$ ]] || { echo "Could not understand possible copyright line: $c" >/dev/stderr; continue; }
+    yearstr=${BASH_REMATCH[1]}
+    namestr=${BASH_REMATCH[2]}
+    years=()
+    while [[ "$yearstr" =~ ^([^, ]+)([, ]*)(.*)$ ]]; do
+      yearstr=${BASH_REMATCH[3]}
+      y=${BASH_REMATCH[1]}
+      if [[ "$y" =~ ^([0-9]+)( *- *)([0-9]+) ]]; then
+        start=${BASH_REMATCH[1]}
+        end=${BASH_REMATCH[3]}
+        for ((i=$start;i<=$end;i++)); do years+=($i); done
+      else
+        years+=($y)
+      fi
+    done
+    names=()
+    while [[ "$namestr" =~ ^(.*)(, *| and )(.*)$ ]]; do
+      namestr=${BASH_REMATCH[3]}
+      names+=("${BASH_REMATCH[1]}")
+    done
+    names+=("$namestr")
+    for n in "${names[@]}"; do n=${n%.*}; for y in "${years[@]}"; do echo "$y" "$n"; done; done
+  done
+} | sort -u | {
+  declare -A lines
+  declare -A last
+  while read c; do
+    [[ "$c" =~ ^([0-9]+)\ (.*)$ ]] && year=${BASH_REMATCH[1]} && name=${BASH_REMATCH[2]}
+    last[$name]="$year"
+    lines[$name]+="$year "
+  done
+  names=(); while read n; do names+=("${n#* }"); done <<< "$(for name in "${!last[@]}"; do echo "${last[$name]} $name"; done | sort)"
+  for name in "${names[@]}"; do
+    echo " Copyright ${lines[$name]}$name"
+  done
+}

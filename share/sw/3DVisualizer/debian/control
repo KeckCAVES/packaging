@@ -1,0 +1,14 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-collaboration-dev
+Section: science
+Homepage: http://keckcaves.org/software/3dvisualizer
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Visualization and analysis of 3D multivariate gridded data
+ 3D Visualizer is a highly interactive application for visualization and
+ analysis of 3D multivariate gridded data, such as produced by finite element
+ method (FEM) simulations, confocal microscopy, serial sectioning,
+ computerized axial tomography (CAT) scans, or magnetic resonance imaging
+ (MRI) scans.

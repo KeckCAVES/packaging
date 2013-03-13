@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+DESTDIR=debian/$(shell sed -n 's/^Package: \(.*\)$$/\1/p' debian/control)
+VRUI_MAKEDIR=/usr/share/Vrui-$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)/make
+SRCNAME=$(shell sed -n 's/^Upstream-Name: //p' debian/copyright)
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build:
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) INSTALLDIR=/usr ETCINSTALLDIR=/etc/$(SRCNAME)
+
+override_dh_auto_install:
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) INSTALLDIR=$(DESTDIR)/usr ETCINSTALLDIR=$(DESTDIR)/etc/$(SRCNAME) install

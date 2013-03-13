@@ -1,0 +1,44 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-collaboration-dev
+Section: libs
+Homepage: http://idav.ucdavis.edu/~okreylos/ResDev/Kinect
+
+Package: SRCPKGNAME
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: vrui-kinect-utils
+Description: Kinect 3D Video Capture - Runtime
+ Software to connect a Kinect to a regular computer, and use it as a 3D camera
+ for a variety of 3D graphics and virtual reality applications. The software is
+ implemented as a set of applications based on the Vrui VR toolkit, and
+ additionally as a Vrui vislet to facilitate using the 3D video stream received
+ from a Kinect with all existing Vrui VR applications.
+ .
+ This package contains the runtime library files needed to run software
+ using Vrui with Kinect.
+
+Package: SRCPKGNAME-dev
+Section: libdevel
+Architecture: any
+Depends: SRCPKGNAME (= ${binary:Version}), ${misc:Depends}, libvruiVRUIVER-collaboration-dev
+Description: Kinect 3D Video Capture - Development files
+ Software to connect a Kinect to a regular computer, and use it as a 3D camera
+ for a variety of 3D graphics and virtual reality applications. The software is
+ implemented as a set of applications based on the Vrui VR toolkit, and
+ additionally as a Vrui vislet to facilitate using the 3D video stream received
+ from a Kinect with all existing Vrui VR applications.
+ .
+ This package contains the header and development files needed to build
+ programs and packages using Vrui with Kinect.
+
+Package: vrui-kinect-utils
+Section: utils
+Architecture: any
+Depends: SRCPKGNAME, ${shlibs:Depends}, ${misc:Depends}
+Description: Kinect 3D Video Capture - Utilities
+ Software to connect a Kinect to a regular computer, and use it as a 3D camera
+ for a variety of 3D graphics and virtual reality applications. The software is
+ implemented as a set of applications based on the Vrui VR toolkit, and
+ additionally as a Vrui vislet to facilitate using the 3D video stream received
+ from a Kinect with all existing Vrui VR applications.
+ .
+ This package contains utilities for calibrating and using the Kinect.

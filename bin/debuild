@@ -1,0 +1,61 @@
+#!/bin/bash
+source "$(dirname "$0")"/../lib/init
+
+SW=$1
+[[ -z $SW ]] && { echo "Usage: $(basename $0) <software>"; exit 2; }
+
+VARS=(SRCREPO SRCVER SRCREV SRCNAME SRCPKGNAME SRCPKGVER PKGERREPO PKGERREV DATE YEAR MAINTAINER HOMEPAGE COPYRIGHT PKGREL)
+PKGERREPO=$(git config --get remote.origin.url)
+PKGERREV=$(git describe --always --long --dirty)
+DATE=$(date -R)
+YEAR=$(date +%Y)
+suffix="tar.gz"
+
+getswvars "$SW"
+debiandir="$swdir/debian"
+[[ ! -e "$debiandir" ]] && { echo "Cannot find debian directory for $SW"; exit 2; }
+
+[[ -z "$SRCREV" ]] && SRCREV=v$SRCVER
+mkdir -p "$CACHEDIR"
+cd "$CACHEDIR"
+eval $("$bindir/mksrcarc" "$SRCREPO" "$SRCREV" "$suffix")
+
+mkdir -p "$DEBUILDDIR"
+cd "$DEBUILDDIR"
+
+# Create series-independent build directory from templates
+builddirs=($(mktemp -d $SW.XXXXX.0))
+pushd "${builddirs[0]}"
+tar -x --strip-components=1 -f "$CACHEDIR/$SRCARC"
+COPYRIGHT="\n$($bindir/grepcopyright | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
+cp -a "$sharedir/pkg/debian" ./
+cp -a "$debiandir/"* debian/
+for fh in debian/*.HEAD; do f=${fh%.HEAD}; cat "$f" >> "$fh"; mv -f "$fh" "$f"; done
+HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
+[[ -z "$SRCPKGVER" ]] && SRCPKGVER=$SRCVER
+PKGREL=$($bindir/lsdebrepo $SRCPKGNAME $SRCPKGVER); PKGREL=${PKGREL##* }; ((++PKGREL))
+{ for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
+ln -sTf "$CACHEDIR/$SRCARC" ../${SRCPKGNAME}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
+popd
+
+# From series-independent build directory, create one build directory per series
+for ((n=1; n<${#ALLSERIES[@]}; ++n)); do
+  builddirs+=(${builddirs[0]%.*}.$n)
+  cp -afT "${builddirs[0]}" "${builddirs[-1]}"
+done
+rm -f "$SW.debuild"
+for ((n=0; n<${#ALLSERIES[@]}; ++n)); do
+  sed -i'' "s/SERIES/${ALLSERIES[$n]}/g" "${builddirs[$n]}"/debian/changelog
+  builddir=${SRCPKGNAME}_$(sed '1s/.*(\([^)]*\)).*/\1/p;d' "${builddirs[$n]}"/debian/changelog)
+  rm -rf "$builddir"
+  mv "${builddirs[$n]}" "$builddir"
+  builddirs[$n]=$builddir
+  echo "$builddir" >>"$SW.debuild"
+done
+
+# Build from each build directory
+incsrc=a; [[ "$PKGREL" != 1 ]] && incsrc=d
+for builddir in "${builddirs[@]}"; do pushd "$builddir"
+  distro=$(parsechangelog | sed 's/^Distribution: //p;d')
+  debuild -nc -j$JOBS -S -s$incsrc; incsrc=d
+popd; done

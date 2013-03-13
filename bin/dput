@@ -1,0 +1,6 @@
+#!/bin/bash
+source "$(dirname "$0")"/../lib/init
+sw=$1; [[ -z "$sw" ]] && echo "Usage: $(basename "$0") <software>" && exit 2
+f=$DEBUILDDIR/$sw.debuild; [[ -r "$f" ]] || echo "Cannot read $f";
+changes=(); while read p; do changes+=("$DEBUILDDIR/${p}_source.changes"); done <"$f"
+dput -o "$UBUNTUARC" "${changes[@]}" && dput "$UBUNTUARC" "${changes[@]}"

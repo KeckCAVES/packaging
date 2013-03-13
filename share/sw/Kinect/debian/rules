@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+PKGNAME=$(shell sed -n 's/^Source: \(.*\)$$/\1/p' debian/control)
+DESTDIR=debian/$(PKGNAME)
+VRUI_MAKEDIR=/usr/share/Vrui-$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)/make
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build:
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) LIBEXT=lib
+
+override_dh_auto_install:
+	# base package
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) LIBEXT=lib INSTALLPREFIX=$(DESTDIR) install
+	# dev package
+	install -d $(DESTDIR)-dev/usr
+	mv $(DESTDIR)/usr/include $(DESTDIR)-dev/usr/
+	mv $(DESTDIR)/usr/share $(DESTDIR)-dev/usr/
+	# utils package
+	install -d debian/vrui-kinect-utils/usr/bin
+	mv $(DESTDIR)/usr/bin debian/vrui-kinect-utils/usr/
+	mv $(DESTDIR)/etc debian/vrui-kinect-utils/
+
+override_dh_shlibdeps:
+	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:lib" dh_shlibdeps

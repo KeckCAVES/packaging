@@ -2,5 +2,5 @@ Packaging tools for KeckCAVES and KeckCAVES-related software.
 
 Currently just Ubuntu is supported.
 
-Before you can use these tools, you'll probably need to follow the instructions here:
+Before you can use these tools, you'll probably need to follow these instructions:
   http://developer.ubuntu.com/packaging/html/getting-set-up.html

@@ -1,0 +1,8 @@
+SRCPKGNAME (SRCPKGVER-PKGREL~SERIES) SERIES; urgency=low
+
+  * Auto-generated from
+    SRCREPO SRCREV
+    using
+    PKGERREPO PKGERREV
+
+ -- MAINTAINER  DATE
