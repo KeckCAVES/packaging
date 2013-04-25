@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/LidarViewer.git
-SRCVER=2.10
-VRUIVER=2.6; VARS+=(VRUIVER)
+SRCVER=2.11
+VRUIVER=2.7; VARS+=(VRUIVER)
 SRCPKGNAME=lidarviewer
