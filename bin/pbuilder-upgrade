@@ -1,0 +1,20 @@
+#!/bin/bash
+source "$(dirname "$0")"/../lib/init
+
+sudo -v
+for series in "${ALLSERIES[@]}"; do
+  { for arch in "${ALLARCH[@]}"; do
+      pbuilder-dist $series $arch update
+    done
+  } &
+done
+wait
+
+sudo -v
+for series in "${ALLSERIES[@]}"; do
+  { for arch in "${ALLARCH[@]}"; do
+      pbuilder-dist $series $arch clean
+    done
+  } &
+done
+wait

@@ -1,7 +1,6 @@
 #!/bin/bash
 source "$(dirname "$0")"/../lib/init
 
-[[ $1 == '--no-update' ]] && noupdate=1 && shift
 sw=$1
 [[ -z "$sw" ]] && echo "Usage: $(basename "$0") <software>" && exit 2
 f=$DEBUILDDIR/$sw.debuild; [[ -r "$f" ]] || { echo "Cannot read $f"; exit 1; }
@@ -14,15 +13,18 @@ cat >"$d/D00update-local-repo" <<-.
 .
 chmod +x "$d"/*
 
+sudo -v
 mkdir -p "$PBUILDERDIR"
 for p in "${pkgs[@]}"; do
   c=$DEBUILDDIR/${p}_source.changes
   dsc=$(dirname "$c")/$(sed '/Files:/,/^$/s/^.* \(.*\.dsc\)$/\1/p;d' "$c")
   series=$(sed 's/^Distribution: //p;d' "$c")
-  for arch in "${ALLARCH[@]}"; do
-    [[ -z "$noupdate" ]] && pbuilder-dist $series $arch update
-    pbuilder-dist $series $arch build --logfile "$PBUILDERDIR/${p}_${arch}_pbuilder.log" --allow-untrusted --debbuildopts "-j$JOBS" --buildresult "$PBUILDERDIR" --bindmounts "$PBUILDERDIR" --hookdir "$d" --othermirror "deb file://$PBUILDERDIR ./" --override-config "$dsc"
-  done
+  {
+    for arch in "${ALLARCH[@]}"; do
+      pbuilder-dist $series $arch build --logfile "$PBUILDERDIR/${p}_${arch}_pbuilder.log" --allow-untrusted --debbuildopts "-j$JOBS" --buildresult "$PBUILDERDIR" --bindmounts "$PBUILDERDIR" --hookdir "$d" --othermirror "deb file://$PBUILDERDIR ./" --override-config "$dsc"
+    done
+  } &
 done
 
+wait
 rm -rf "$d"

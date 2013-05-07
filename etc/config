@@ -14,7 +14,7 @@ MAINTAINER=$(git config user.name)' <'$(git config user.email)'>'
 JOBS=$(($(grep ^processor /proc/cpuinfo | wc -l) + 1))
 
 # The Ubuntu series to build for
-ALLSERIES=(oneiric precise quantal raring)
+ALLSERIES=(oneiric precise quantal raring saucy)
 
 # The Ubuntu architectures to build binaries for
 ALLARCH=(amd64 i386)
