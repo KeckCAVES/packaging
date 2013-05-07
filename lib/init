@@ -9,6 +9,8 @@ CACHEDIR=$(readlink -m "$CACHEDIR")
 DEBUILDDIR=$(readlink -m "$DEBUILDDIR")
 PBUILDERDIR=$(readlink -m "$PBUILDERDIR")
 
+[[ -n "$SERIES" ]] && { ALLSERIES=($SERIES);}
+
 getswvars() {
   swdir="$sharedir/sw/$1"
   [[ ! -e "$swdir" ]] && { echo "Unknown software $SW"; exit 2; }

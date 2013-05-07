@@ -34,7 +34,7 @@ cp -a "$debiandir/"* debian/
 for fh in debian/*.HEAD; do f=${fh%.HEAD}; cat "$f" >> "$fh"; mv -f "$fh" "$f"; done
 HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
 [[ -z "$SRCPKGVER" ]] && SRCPKGVER=$SRCVER
-PKGREL=$($bindir/lsdebrepo $SRCPKGNAME $SRCPKGVER); PKGREL=${PKGREL##* }; ((++PKGREL))
+[[ -z "$PKGREL" ]] && { PKGREL=$($bindir/lsdebrepo $SRCPKGNAME $SRCPKGVER); PKGREL=${PKGREL##* }; ((++PKGREL));}
 { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
 ln -sTf "$CACHEDIR/$SRCARC" ../${SRCPKGNAME}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
 popd
