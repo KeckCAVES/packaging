@@ -1,0 +1,11 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev, libgle-dev, libftgl-dev
+Section: science
+Homepage: http://keckcaves.org/software/flow
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Differential equation visualizer in 3D
+ Tool for for exploring dynamical systems with specialized tools to visualize
+ chaotic behaviors, pattern emergence, and mathematical structures.
