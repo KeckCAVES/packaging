@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+VRUI_MAKEDIR=/usr/share/Vrui-$(shell sed -n 's/Build-Depends: .*libvrui\([^-]*\).*$$/\1/p' debian/control)
+SRCNAME=$(shell sed -n 's/^Upstream-Name: //p' debian/copyright)
+DESTDIR=debian/$(shell sed -n 's/^Package: \(.*\)$$/\1/p' debian/control)
+BININSTALLDIR=/usr/bin
+SHAREINSTALLDIR=/usr/share/$(SRCNAME)
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build:
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) BININSTALLDIR=$(BININSTALLDIR) SHAREINSTALLDIR=$(SHAREINSTALLDIR)
+
+override_dh_auto_test:
+	/bin/true
+
+override_dh_auto_install:
+	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) BININSTALLDIR=$(DESTDIR)/$(BININSTALLDIR) SHAREINSTALLDIR=$(DESTDIR)/$(SHAREINSTALLDIR)

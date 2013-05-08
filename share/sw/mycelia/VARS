@@ -1,0 +1,4 @@
+SRCREPO=git://github.com/KeckCAVES/mycelia.git
+SRCVER=0-61-g7fdf4bf
+VRUIVER=2.7; VARS+=(VRUIVER)
+SRCPKGNAME=mycelia

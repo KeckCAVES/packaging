@@ -1,0 +1,15 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev, libboost-dev, libboost-system-dev, libboost-regex-dev, libftgl-dev, libxmlrpc-c3-dev, libcurl4-openssl-dev
+Section: science
+Homepage: http://keckcaves.org/software/mycelia
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Network visualization and analysis tool in 3D
+ 3D network visualization and analysis tool designed to allow users to
+ explore both the structure and dynamics of networks. It has an iPython
+ interface that allows real-time creation and modification of networks.
+ In addition, networks can be loaded from Graphviz, XML, Chaco, or GraphML
+ files, and graphs can be modified in Mycelia saved in Graphviz format.
+ Graph theory algorithms are provided by the Boost library.
