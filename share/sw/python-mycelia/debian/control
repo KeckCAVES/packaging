@@ -5,6 +5,6 @@ Homepage: http://keckcaves.org/software/mycelia
 Package: SRCPKGNAME
 Section: science
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
 Description: Python module for mycelia
  Provides mycelia module to communicate with an instance of mycelia.
