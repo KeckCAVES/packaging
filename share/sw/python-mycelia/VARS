@@ -1,0 +1,3 @@
+SRCREPO=git://github.com/KeckCAVES/mycelia.git
+SRCVER=0-61-g7fdf4bf
+SRCPKGNAME=python-mycelia

@@ -1,0 +1,10 @@
+Build-Depends: debhelper (>= 8.0.0), python-all-dev, python-setuptools, mycelia
+Section: science
+Homepage: http://keckcaves.org/software/mycelia
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Python module for mycelia
+ Provides mycelia module to communicate with an instance of mycelia.
