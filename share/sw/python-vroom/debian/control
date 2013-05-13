@@ -5,7 +5,7 @@ Homepage: http://github.com/jvan/vroom
 Package: SRCPKGNAME
 Section: science
 Architecture: any
-Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}, python-pyftgl, python-pyinotify, python-pyopengl, python-numpy
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}, python-pyftgl, python-pyinotify, python-opengl, python-numpy
 Provides: ${python:Provides}
 Description: Rapid VR Development in Python
  Develop VR applications rapidly using Python.
