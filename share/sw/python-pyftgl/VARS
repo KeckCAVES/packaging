@@ -1,0 +1,5 @@
+SRCREPO=http://pyftgl.googlecode.com/files/PyFTGL-0.5c.tar.bz2
+SRCREV=0.5c
+SRCSUFFIX=tar.bz2
+SRCPKGNAME=python-pyftgl
+COPYRIGHT=" Copyright 2007 2008 Anders Dahnielson"

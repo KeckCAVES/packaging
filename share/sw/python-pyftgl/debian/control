@@ -1,0 +1,12 @@
+Build-Depends: debhelper (>= 8.0.0), python-all-dev, python-setuptools, libboost-python-dev, libftgl-dev
+Section: science
+Homepage: http://http://code.google.com/p/pyftgl/
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
+Provides: ${python:Provides}
+Description: Python wrapper for FTGL
+ PyFTGL wraps the functionality of FTGL into a Python module so that it can be
+ used in conjunction with PyOpenGL.
