@@ -10,16 +10,16 @@ PKGERREPO=$(git config --get remote.origin.url)
 PKGERREV=$(git describe --always --long --dirty)
 DATE=$(date -R)
 YEAR=$(date +%Y)
-suffix="tar.gz"
 
 getswvars "$SW"
 debiandir="$swdir/debian"
 [[ ! -e "$debiandir" ]] && { echo "Cannot find debian directory for $SW"; exit 2; }
 
+[[ -z "$SRCSUFFIX" ]] && SRCSUFFIX="tar.gz"
 [[ -z "$SRCREV" ]] && SRCREV=v$SRCVER
 mkdir -p "$CACHEDIR"
 cd "$CACHEDIR"
-eval $("$bindir/mksrcarc" "$SRCREPO" "$SRCREV" "$suffix")
+eval $("$bindir/mksrcarc" "$SRCREPO" "$SRCREV" "$SRCSUFFIX")
 
 mkdir -p "$DEBUILDDIR"
 cd "$DEBUILDDIR"
@@ -28,7 +28,9 @@ cd "$DEBUILDDIR"
 builddirs=($(mktemp -d $SW.XXXXX.0))
 pushd "${builddirs[0]}"
 tar -x --strip-components=1 -f "$CACHEDIR/$SRCARC"
-COPYRIGHT="\n$($bindir/grepcopyright | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')"
+COPYRIGHT=${COPYRIGHT:-$($bindir/grepcopyright 2>/dev/null | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//')}
+[[ -z "$COPYRIGHT" ]] && { echo "Error: no COPYRIGHT set"; exit 1;} || echo "Copyright: $COPYRIGHT"
+COPYRIGHT="\n$COPYRIGHT"
 cp -a "$sharedir/pkg/debian" ./
 cp -a "$debiandir/"* debian/
 for fh in debian/*.HEAD; do f=${fh%.HEAD}; cat "$f" >> "$fh"; mv -f "$fh" "$f"; done
@@ -36,7 +38,7 @@ HOMEPAGE=$(sed -n 's/^Homepage: \(.*\)$/\1/p' debian/control)
 [[ -z "$SRCPKGVER" ]] && SRCPKGVER=$SRCVER
 [[ -z "$PKGREL" ]] && { PKGREL=$($bindir/lsdebrepo $SRCPKGNAME $SRCPKGVER); PKGREL=${PKGREL##* }; ((++PKGREL));}
 { for v in "${VARS[@]}"; do echo "s|$v|${!v}|g"; done; } | sed -i'' -f- debian/changelog debian/control debian/copyright
-ln -sTf "$CACHEDIR/$SRCARC" ../${SRCPKGNAME}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$suffix
+ln -sTf "$CACHEDIR/$SRCARC" ../${SRCPKGNAME}_$(sed '1s/.*(\([^)]*\)-.*/\1/p;d' debian/changelog).orig.$SRCSUFFIX
 popd
 
 # From series-independent build directory, create one build directory per series
