@@ -43,3 +43,14 @@ Description: Vrui VR toolkit - Utilities
  fully-immersive virtual reality applications.
  .
  This package contains the VRDeviceDaemon and other utilities for Vrui.
+
+Package: libvrui-dev
+Section: libdevel
+Architecture: any
+Depends: SRCPKGNAME-dev, ${misc:Depends}
+Description: Vrui VR toolkit - Latest development files
+ The Vrui VR toolkit simplifies creation of portable and highly interactive
+ fully-immersive virtual reality applications.
+ .
+ This package depends on the latest header and development files needed to build
+ programs and packages using Vrui.

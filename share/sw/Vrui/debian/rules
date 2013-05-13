@@ -49,6 +49,9 @@ override_dh_auto_install:
 	mv $(DESTDIR)/usr/bin debian/vrui-utils/usr/
 	install -d debian/vrui-utils/etc/$(VRUINAME)
 	mv $(DESTDIR)/$(SHAREETC)/VRDevices.cfg debian/vrui-utils/etc/$(VRUINAME)/
+	# libvrui-dev package
+	install -d debian/libvrui-dev/usr/lib/pkgconfig
+	ln -s $(VRUINAME).pc debian/libvrui-dev/usr/lib/pkgconfig/Vrui.pc
 
 override_dh_shlibdeps:
 	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:lib" dh_shlibdeps
@@ -58,3 +61,4 @@ override_dh_gencontrol:
 	dh_gencontrol -p$(PKGNAME)-dev
 	dh_gencontrol -p$(PKGNAME)-doc
 	dh_gencontrol -pvrui-utils -- -v$(VER)-$(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
+	dh_gencontrol -plibvrui-dev -- -v$(VER)-$(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
