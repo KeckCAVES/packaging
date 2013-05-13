@@ -1,0 +1,4 @@
+SRCREPO=git://github.com/jvan/vroom.git
+SRCREV=a0e6163b8ce54bef2fa0435545cfd7892a44975a
+SRCPKGNAME=python-vroom
+COPYRIGHT=" Copyright 2012 2013 Jordan Van Aalsburg"
