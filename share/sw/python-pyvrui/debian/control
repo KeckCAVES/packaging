@@ -1,0 +1,11 @@
+Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev, libvrui-dev, pkg-config, swig (>= 2.0), python-all-dev, python-setuptools
+Section: science
+Homepage: http://github.com/jvan/pyvrui
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
+Provides: ${python:Provides}
+Description: Python wrapper for Vrui
+ Python interface for Vrui libraries
