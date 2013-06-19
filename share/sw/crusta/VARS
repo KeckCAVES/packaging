@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/crusta.git
-SRCVER=1.0-90-g7d215aa
+SRCVER=1.0-96-g690ce10
 VRUIVER=2.7; VARS+=(VRUIVER)
 SRCPKGNAME=crusta
