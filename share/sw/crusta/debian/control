@@ -1,4 +1,4 @@
-Build-Depends: debhelper (>= 8.0.0), cmake, libvruiVRUIVER-dev, libgdal-dev, libglewmx-dev
+Build-Depends: debhelper (>= 8.0.0), cmake, libvruiVRUIVER-dev, libgdal-dev, libglewmx-dev, libfontconfig-dev, libftgl-dev
 Section: science
 Homepage: http://keckcaves.org/software/crusta
 
