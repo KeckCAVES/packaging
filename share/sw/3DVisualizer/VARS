@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/3DVisualizer.git
-SRCVER=1.13
-VRUIVER=2.7; VARS+=(VRUIVER)
+SRCVER=1.14
+VRUIVER=3.0; VARS+=(VRUIVER)
 SRCPKGNAME=3dvisualizer
