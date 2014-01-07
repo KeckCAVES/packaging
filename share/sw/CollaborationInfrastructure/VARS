@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/CollaborationInfrastructure.git
 SRCVER=2.6
-VRUIVER=3.0; VARS+=(VRUIVER)
+VRUIVER=3.1; VARS+=(VRUIVER)
 SRCPKGNAME=libvrui${VRUIVER}-collaboration

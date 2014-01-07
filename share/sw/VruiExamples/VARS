@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/Vrui.git
-SRCVER=3.0-002
+SRCVER=3.1-001
 VRUIVER=${SRCVER%-*}; VARS+=(VRUIVER)
 SRCPKGNAME=vrui-examples
