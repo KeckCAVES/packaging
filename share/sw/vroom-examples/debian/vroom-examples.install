@@ -1,0 +1,2 @@
+*.vroom usr/share/vroom-examples
+data/* usr/share/vroom-examples/data
