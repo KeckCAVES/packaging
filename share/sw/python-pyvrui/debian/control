@@ -1,6 +1,6 @@
 Build-Depends: debhelper (>= 8.0.0), libvruiVRUIVER-dev, libvrui-dev, pkg-config, swig (>= 2.0), python-all-dev, python-setuptools
 Section: science
-Homepage: http://github.com/jvan/pyvrui
+Homepage: http://github.com/ComSciCtr/pyvrui
 
 Package: SRCPKGNAME
 Section: science

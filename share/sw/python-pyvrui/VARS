@@ -1,5 +1,5 @@
-SRCREPO=git://github.com/jvan/pyvrui.git
+SRCREPO=git://github.com/ComSciCtr/pyvrui.git
 SRCREV=53a82cf7803aef543aaa41e2d4cb8f45bd3d97d0
-VRUIVER=2.7; VARS+=(VRUIVER)
+VRUIVER=3.1; VARS+=(VRUIVER)
 SRCPKGNAME=python-pyvrui
 COPYRIGHT=" Copyright 2011 2012 2013 Jordan Van Aalsburg"
