@@ -1,0 +1,10 @@
+Build-Depends: debhelper (>= 8.0.0), python-all-dev, python-setuptools
+Section: science
+Homepage: http://github.com/ComSciCtr/vroom-examples
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}, vroom
+Provides: ${python:Provides}
+Description: Example programs for vroom
