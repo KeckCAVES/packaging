@@ -1,6 +1,6 @@
 Build-Depends: debhelper (>= 8.0.0), python-all-dev, python-setuptools
 Section: science
-Homepage: http://github.com/jvan/vroom
+Homepage: http://github.com/ComSciCtr/vroom
 
 Package: SRCPKGNAME
 Section: science
