@@ -1,0 +1,10 @@
+Build-Depends: debhelper (>= 8.0.0), python-all-dev, python-setuptools
+Section: science
+Homepage: http://github.com/ComSciCtr/vrui-launcher
+
+Package: SRCPKGNAME
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}, python-mako, python-gi
+Provides: ${python:Provides}
+Description: VRUI application launcher
