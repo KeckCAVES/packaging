@@ -12,6 +12,8 @@ endif
 %:
 	dh $@ --sourcedirectory=$(SRCDIR) --parallel
 
+override_dh_auto_clean: ;
+override_dh_auto_test: ;
 override_dh_auto_build:
 	$(MAKE) -C $(SRCDIR) VRUI_MAKEDIR=$(VRUI_MAKEDIR) INSTALLDIR=/usr
 
