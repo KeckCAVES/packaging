@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/Kinect.git
-SRCVER=2.8
+SRCVER=2.8-002
 VRUIVER=3.1; VARS+=(VRUIVER)
 SRCPKGNAME=libvrui${VRUIVER}-kinect
