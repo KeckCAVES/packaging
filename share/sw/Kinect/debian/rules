@@ -12,6 +12,10 @@ endif
 %:
 	dh $@ --parallel
 
+override_dh_auto_clean: ;
+
+override_dh_auto_test: ;
+
 override_dh_auto_build:
 	$(MAKE) VRUI_MAKEDIR=$(VRUI_MAKEDIR) LIBEXT=lib
 
