@@ -1,4 +1,4 @@
 SRCREPO=git://github.com/KeckCAVES/SARndbox.git
-SRCVER=1.5
+SRCVER=1.6
 VRUIVER=3.1; VARS+=(VRUIVER)
 SRCPKGNAME=sarndbox
