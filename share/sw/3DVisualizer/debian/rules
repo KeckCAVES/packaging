@@ -16,6 +16,10 @@ endif
 %:
 	dh $@ --parallel
 
+override_dh_auto_clean: ;
+
+override_dh_auto_test: ;
+
 override_dh_auto_configure:
 	sed -i'' 's/UNSUPPORTED_MODULE_NAMES =/MODULE_NAMES +=/' makefile
 
